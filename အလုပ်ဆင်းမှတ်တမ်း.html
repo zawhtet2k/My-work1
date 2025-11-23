@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>အလုပ်ဆင်းမှတ်တမ်း</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Myanmar Text", "Padauk", sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+            color: #333;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .editable {
+            background-color: #fff;
+            transition: background-color 0.3s;
+        }
+        
+        .editable:focus {
+            background-color: #e8f4fc;
+            outline: 2px solid #3498db;
+        }
+        
+        .numeric {
+            min-width: 80px;
+        }
+        
+        .summary {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .summary-item {
+            text-align: center;
+            margin: 10px;
+            min-width: 150px;
+        }
+        
+        .summary-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .summary-label {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        button {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            min-width: 160px;
+        }
+        
+        button:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        #add-row {
+            background-color: #3498db;
+        }
+        
+        #add-row:hover {
+            background-color: #2980b9;
+        }
+        
+        #calculate {
+            background-color: #9b59b6;
+        }
+        
+        #calculate:hover {
+            background-color: #8e44ad;
+        }
+        
+        #reset {
+            background-color: #e74c3c;
+        }
+        
+        #reset:hover {
+            background-color: #c0392b;
+        }
+        
+        @media (max-width: 768px) {
+            table {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+            
+            .summary {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>အလုပ်ဆင်းမှတ်တမ်း</h1>
+        
+        <div class="table-container">
+            <table id="attendance-table">
+                <thead>
+                    <tr>
+                        <th>ရက်စွဲ</th>
+                        <th>အလုပ်ဆင်းသည့်ရက်</th>
+                        <th>နားသည့်ရက်</th>
+                        <th>Over Time</th>
+                        <th>မှတ်ချက်</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- 31 days will be generated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="summary">
+            <div class="summary-item">
+                <div class="summary-value" id="total-work-days">0</div>
+                <div class="summary-label">စုစုပေါင်း အလုပ်ဆင်းသည့်ရက်</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="total-off-days">0</div>
+                <div class="summary-label">စုစုပေါင်း နားသည့်ရက်</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="total-overtime">0</div>
+                <div class="summary-label">စုစုပေါင်း Over Time</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="add-row">အတန်းအသစ်ထည့်ရန်</button>
+            <button id="calculate">စုစုပေါင်းတွက်ရန်</button>
+            <button id="reset">ပြန်လည်စတင်ရန်</button>
+        </div>
+    </div>
+
+    <script>
+        // ဇယားကွက်ကို ၃၁ ရက်ဖြည့်ရန် function
+        function generate31Days() {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
+            
+            for (let day = 1; day <= 31; day++) {
+                const row = document.createElement('tr');
+                const dateStr = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                
+                // မြန်မာဂဏန်းများသို့ပြောင်းရန် function
+                function toMyanmarNumerals(number) {
+                    const myanmarNumerals = ['၀', '၁', '၂', '၃', '၄', '၅', '၆', '၇', '၈', '၉'];
+                    return number.toString().split('').map(digit => myanmarNumerals[parseInt(digit)]).join('');
+                }
+                
+                const myanmarDate = `${toMyanmarNumerals(currentYear)}-${toMyanmarNumerals(currentMonth)}-${toMyanmarNumerals(day)}`;
+                
+                row.innerHTML = `
+                    <td class="editable">${myanmarDate}</td>
+                    <td class="editable numeric">၀</td>
+                    <td class="editable numeric">၀</td>
+                    <td class="editable numeric">၀</td>
+                    <td class="editable"></td>
+                `;
+                tableBody.appendChild(row);
+            }
+            
+            // ပြင်ဆင်နိုင်သော cell များကို contenteditable လုပ်ရန်
+            document.querySelectorAll('.editable').forEach(cell => {
+                cell.contentEditable = true;
+            });
+        }
+        
+        // စုစုပေါင်းတွက်ချက်ရန် function
+        function calculateTotals() {
+            let workDays = 0;
+            let offDays = 0;
+            let overtime = 0;
+            
+            const rows = document.querySelectorAll('#table-body tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                
+                // မြန်မာဂဏန်းများကို အင်္ဂလိပ်ဂဏန်းများသို့ပြောင်းရန်
+                function fromMyanmarNumerals(text) {
+                    const myanmarNumerals = {'၀':0, '၁':1, '၂':2, '၃':3, '၄':4, '၅':5, '၆':6, '၇':7, '၈':8, '၉':9};
+                    return parseInt(text.split('').map(digit => myanmarNumerals[digit] !== undefined ? myanmarNumerals[digit] : digit).join(''));
+                }
+                
+                workDays += fromMyanmarNumerals(cells[1].textContent) || 0;
+                offDays += fromMyanmarNumerals(cells[2].textContent) || 0;
+                overtime += fromMyanmarNumerals(cells[3].textContent) || 0;
+            });
+            
+            document.getElementById('total-work-days').textContent = workDays;
+            document.getElementById('total-off-days').textContent = offDays;
+            document.getElementById('total-overtime').textContent = overtime;
+        }
+        
+        // Page လောင်းပြီးတာနဲ့ run ရန်
+        document.addEventListener('DOMContentLoaded', function() {
+            // ၃၁ ရက်ဇယားဖန်တီးရန်
+            generate31Days();
+            
+            // ခလုတ်များအတွက် event listeners များ
+            document.getElementById('add-row').addEventListener('click', function() {
+                const tableBody = document.getElementById('table-body');
+                const newRow = document.createElement('tr');
+                const currentDate = new Date();
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth() + 1;
+                const day = currentDate.getDate();
+                
+                // မြန်မာဂဏန်းများသို့ပြောင်းရန် function
+                function toMyanmarNumerals(number) {
+                    const myanmarNumerals = ['၀', '၁', '၂', '၃', '၄', '၅', '၆', '၇', '၈', '၉'];
+                    return number.toString().split('').map(digit => myanmarNumerals[parseInt(digit)]).join('');
+                }
+                
+                const myanmarDate = `${toMyanmarNumerals(year)}-${toMyanmarNumerals(month)}-${toMyanmarNumerals(day)}`;
+                
+                newRow.innerHTML = `
+                    <td class="editable">${myanmarDate}</td>
+                    <td class="editable numeric">၀</td>
+                    <td class="editable numeric">၀</td>
+                    <td class="editable numeric">၀</td>
+                    <td class="editable"></td>
+                `;
+                tableBody.appendChild(newRow);
+                
+                // ပြင်ဆင်နိုင်သော cell များကို contenteditable လုပ်ရန်
+                newRow.querySelectorAll('.editable').forEach(cell => {
+                    cell.contentEditable = true;
+                });
+            });
+            
+            document.getElementById('calculate').addEventListener('click', calculateTotals);
+            
+            document.getElementById('reset').addEventListener('click', function() {
+                if(confirm('ဇယားအားလုံးကို ပြန်လည်စတင်မည်။ ဆက်လုပ်ပါမည်လား?')) {
+                    const rows = document.querySelectorAll('#table-body tr');
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        cells[1].textContent = '၀';
+                        cells[2].textContent = '၀';
+                        cells[3].textContent = '၀';
+                        cells[4].textContent = '';
+                    });
+                    
+                    document.getElementById('total-work-days').textContent = '0';
+                    document.getElementById('total-off-days').textContent = '0';
+                    document.getElementById('total-overtime').textContent = '0';
+                }
+            });
+            
+            // Auto-calculate when editing numeric cells
+            document.getElementById('table-body').addEventListener('input', function(e) {
+                if(e.target.classList.contains('numeric')) {
+                    calculateTotals();
+                }
+            });
+            
+            // ပထမဆုံး တွက်ချက်မှုလုပ်ရန်
+            calculateTotals();
+        });
+    </script>
+</body>
+</html>
